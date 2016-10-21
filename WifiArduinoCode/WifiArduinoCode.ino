@@ -67,7 +67,7 @@ String sendCommandData(String command, int retardo){
     while(!enviado){
        while(Serial1.available()){
           dato = (char)Serial1.read();
-          data.concat(dato); 
+          data.concat(dato);
        }
        if( data.indexOf("OK") >=0 || data.indexOf("FAIL") >=0 || data.indexOf("ERROR") >=0 || data.indexOf("IP") >=0 ||  data.indexOf(">") >=0){
           enviado = true;
@@ -76,6 +76,20 @@ String sendCommandData(String command, int retardo){
     //Serial.println(data);
     return data;
 }
+
+String sendURL(String URL, int retardo){
+    char dato;
+    String data ="";
+    Serial1.println(URL);
+    delay(retardo); 
+    while(Serial1.available()){
+        dato = (char)Serial1.read();
+        data.concat(dato); 
+     }
+    return data;
+}
+
+
 
 
 
@@ -160,19 +174,16 @@ String UploadData(String variables){
 void DowloadData(){
   String data = "";
   data = sendCommandData("AT+CIPSTART=\"TCP\",\"sdiaz.nosze.co\",80",1000);
+  Serial.println(data);
   if(data.indexOf("OK")>= 0){
     String URL = "GET http://sdiaz.nosze.co/prueba1/switch/Download.php?id=1";
     data = sendCommandData("AT+CIPSEND="+String(URL.length()+2),300);
     if(data.indexOf(">")){
-      data = sendCommandData(URL,600);
-      if(data.indexOf("IPD") >= 0){
-        String respuesta = data.substring(data.indexOf(":")+1,data.indexOf("CLOSED"));
-        Serial.println(respuesta);
-        Serial2.println(respuesta);
-      }
+       data = sendURL(URL,1000);
+       Serial.println(data);
     }
-    sendCommand("AT+CIPCLOSE",300);
   }
+  sendCommand("AT+CIPCLOSE",300);
 }
 
 void serialEvent2(){
@@ -180,11 +191,17 @@ void serialEvent2(){
     //id&nombre&grupo&estado&encendido&distancia&luz&retardo;
     char dato;
     String data ="";
-    while(Serial1.available()){
-       dato = (char)Serial1.read();   
+    while(Serial2.available()){
+       dato = (char)Serial2.read();   
        data+=dato; 
-       delay(30);
     }
+    if(data.indexOf("&")>=0){
+     //   String variables= "id=1&nombre="+valueString(1,data)+"&grupo="+valueString(2,data)+"&estado="+valueString(3,data)+"&luz="+valueString(4,data)+"&distancia="+valueString(5,data)+"&retardo="+valueString(1,data)+"&encendido="+valueString(7,data)+""; 
+        Serial.println(data);
+  
+    }
+
+    
 }
 
 
