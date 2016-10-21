@@ -80,12 +80,19 @@ String sendCommandData(String command, int retardo){
 String sendURL(String URL, int retardo){
     char dato;
     String data ="";
+    bool enviado = false;
+    Serial.println(URL);
     Serial1.println(URL);
-    delay(retardo); 
-    while(Serial1.available()){
-        dato = (char)Serial1.read();
-        data.concat(dato); 
-     }
+    while(!enviado){
+       while(Serial1.available()){
+          dato = (char)Serial1.read();
+          data.concat(dato);
+       }
+       if( data.indexOf("CLOSED") >=0 ){
+          enviado = true;
+       }
+       
+    }
     return data;
 }
 
@@ -173,14 +180,19 @@ String UploadData(String variables){
 
 void DowloadData(){
   String data = "";
-  data = sendCommandData("AT+CIPSTART=\"TCP\",\"sdiaz.nosze.co\",80",1000);
-  Serial.println(data);
+  data = sendCommandData("AT+CIPSTART=\"TCP\",\"sdiaz.nosze.co\",80",700);
   if(data.indexOf("OK")>= 0){
     String URL = "GET http://sdiaz.nosze.co/prueba1/switch/Download.php?id=1";
     data = sendCommandData("AT+CIPSEND="+String(URL.length()+2),300);
     if(data.indexOf(">")){
-       data = sendURL(URL,1000);
-       Serial.println(data);
+       data = sendURL(URL,500);
+       if(data.indexOf("CLOSED")>=0){
+          String respuesta = data.substring(data.indexOf(":")+1,data.indexOf("CLOSED"));
+          Serial.println(respuesta);
+          if(respuesta.indexOf("&")>=0){
+              Serial2.println(respuesta);  
+          } 
+       }
     }
   }
   sendCommand("AT+CIPCLOSE",300);
