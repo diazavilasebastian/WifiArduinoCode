@@ -208,12 +208,16 @@ void serialEvent2(){
        data+=dato; 
     }
     if(data.indexOf("&")>=0){
-     //   String variables= "id=1&nombre="+valueString(1,data)+"&grupo="+valueString(2,data)+"&estado="+valueString(3,data)+"&luz="+valueString(4,data)+"&distancia="+valueString(5,data)+"&retardo="+valueString(1,data)+"&encendido="+valueString(7,data)+""; 
+        String variables= "id=1&nombre="+valueString(1,data)+"&grupo="+valueString(2,data)+"&estado="+valueString(3,data)+"&encendido="+valueString(4,data)+"&distancia="+valueString(5,data)+"&luz="+valueString(6,data)+"&retardo="+valueString(7,data)+""; 
         Serial.println(data);
-  
+        variables.trim();
+        String llegada = UploadData(variables);
+        if(llegada.indexOf("OK")>=0){
+             Serial.println("Envio OK");
+         }else{
+              Serial.println("Envio ERROR");
+         }
     }
-
-    
 }
 
 
