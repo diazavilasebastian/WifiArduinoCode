@@ -10,9 +10,6 @@ void setup() {
   
 }
 
-
-
-
 void loop() {
     switch(activity){
       case 1:
@@ -30,12 +27,13 @@ void loop() {
 
       case 3:
           delay(1000);
+          sendCommand("AT+CIPSERVER=0",300);
           sendCommand("AT+CIPMUX=0",300);
           sendCommand("AT+CWMODE=1",300);
           sendCommand("AT+CIPCLOSE",300);
           activity = 4;
           break;
-
+          
       default:
           DowloadData();
           break;
@@ -53,7 +51,9 @@ void sendCommand(String command, int retardo){
     while(Serial1.available()){
        dato = Serial1.read();
        data.concat(dato); 
+       
     }
+
 }
 
 
@@ -73,7 +73,6 @@ String sendCommandData(String command, int retardo){
           enviado = true;
        }
     }
-    //Serial.println(data);
     return data;
 }
 
@@ -91,7 +90,6 @@ String sendURL(String URL, int retardo){
        if( data.indexOf("CLOSED") >=0 ){
           enviado = true;
        }
-       
     }
     return data;
 }
@@ -181,11 +179,13 @@ String UploadData(String variables){
 void DowloadData(){
   String data = "";
   data = sendCommandData("AT+CIPSTART=\"TCP\",\"sdiaz.nosze.co\",80",700);
+
   if(data.indexOf("OK")>= 0){
     String URL = "GET http://sdiaz.nosze.co/prueba1/switch/Download.php?id=1";
     data = sendCommandData("AT+CIPSEND="+String(URL.length()+2),300);
+    
     if(data.indexOf(">")){
-       data = sendURL(URL,500);
+       data = sendURL(URL,600);
        if(data.indexOf("CLOSED")>=0){
           String respuesta = data.substring(data.indexOf(":")+1,data.indexOf("CLOSED"));
           Serial.println(respuesta);
